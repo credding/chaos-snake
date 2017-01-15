@@ -2,6 +2,7 @@ let path = require('path');
 
 let webpack = require('webpack');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -26,8 +27,18 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                options: {
+                    presets: [ 'es2015' ]
+                }
+            },
+            {
                 test: /\.scss$/,
-                use: [ 'style-loader', 'css-loader', 'sass-loader' ]
+                loader: ExtractTextPlugin.extract({
+                    fallbackLoader: 'style-loader',
+                    loader: [ 'css-loader', 'sass-loader' ]
+                })
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
@@ -51,6 +62,7 @@ module.exports = {
             title: 'Chaos Snake',
             template: 'src/index.html'
         }),
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.optimize.UglifyJsPlugin(),
+        new ExtractTextPlugin('style.css')
     ]
 }
