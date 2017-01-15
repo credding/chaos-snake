@@ -134,6 +134,7 @@ function render() {
             break;
     }
     canvas.toBlob(blob => {
+        URL.revokeObjectURL(data.render);
         let url = URL.createObjectURL(blob);
         data.render = URL.createObjectURL(blob);
     });
