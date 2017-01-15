@@ -52,6 +52,7 @@ io.on('connection', function(socket){
         }
 
         socket.emit('session', id);
+        socket.emit('render', render);
 
         socket.on('key', key => {
             user.key = key;
