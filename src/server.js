@@ -42,6 +42,7 @@ io.on('connection', function(socket){
     socket.emit('render', render);
 
     socket.on('session', saveId => {
+
         if (saveId in users) {
             id = saveId;
             user = users[saveId];
@@ -52,13 +53,14 @@ io.on('connection', function(socket){
             user = { key: 'NO', current: 'NO', connected: true }
             users[id] = user;
         }
-        socket.emit('session', id);
-    });
 
-    socket.on('key', key => {
-        user.key = key;
-        if (render.mode !== 'play' || key !== 'NO') user.current = key;
-        sendStats();
+        socket.emit('session', id);
+
+        socket.on('key', key => {
+            user.key = key;
+            if (render.mode !== 'play' || key !== 'NO') user.current = key;
+            sendStats();
+        });
     });
 
     socket.on('disconnect', () => {
