@@ -52,13 +52,10 @@ io.on('connection', function(socket){
         }
 
         socket.emit('session', id);
-        socket.emit('render', render);
-        sendStats();
 
         socket.on('key', key => {
             user.key = key;
             if (render.mode !== 'play' || key !== 'NO') user.current = key;
-            sendStats();
         });
     });
 
@@ -80,6 +77,7 @@ http.listen(3000, () => {
 });
 
 sendRender();
+sendStats();
 
 function sendStats() {
     stats = {
@@ -110,6 +108,7 @@ function sendStats() {
         }
     }
     io.emit('stats', stats);
+    setTimeout(sendStats, 50);
 }
 
 function sendRender() {
@@ -156,7 +155,6 @@ function sendRender() {
         }
     }
     io.emit('render', render);
-    sendStats();
     setTimeout(sendRender, nextTimeout);
 }
 
