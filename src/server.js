@@ -34,20 +34,43 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', function(socket){
-    let id = Math.random().toString(36).substr(2, 10)
-    let user = { key: 'NO', current: 'NO' };
-    userCount++;
-    users[id] = user;
+
+    let id = '';
+    let user = null
+
     sendStats();
     socket.emit('render', render);
+
+    socket.on('session', saveId => {
+        if (saveId in users) {
+            id = saveId;
+            user = users[saveId];
+            user.connected = true;
+        } else {
+            userCount++;
+            id = Math.random().toString(36).substr(2, 10);
+            user = { key: 'NO', current: 'NO', connected: true }
+            users[id] = user;
+        }
+        socket.emit('session', id);
+    });
+
     socket.on('key', key => {
         user.key = key;
         if (render.mode !== 'play' || key !== 'NO') user.current = key;
         sendStats();
     });
+
     socket.on('disconnect', () => {
-        userCount--;
-        delete users[id];
+        if (user != null) {
+            user.connected = false;
+            setTimeout(function() {
+                if (!user.connected) {
+                    userCount--;
+                    delete users[id];
+                }
+            }, 15000);
+        }
     });
 });
 

@@ -32,6 +32,12 @@ socket.on('render', payload => {
     renderData = payload;
     render();
 });
+socket.on('session', id => {
+    localStorage.setItem('session', id);
+});
+
+let session = localStorage.getItem('session');
+socket.emit('session', session);
 
 let canvas = document.createElement('canvas');
 canvas.width = width;
