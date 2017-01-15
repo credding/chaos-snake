@@ -63,6 +63,11 @@ module.exports = {
             template: 'src/index.html'
         }),
         new webpack.optimize.UglifyJsPlugin(),
-        new ExtractTextPlugin('style.css')
+        new ExtractTextPlugin('style.css'),
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"production"'
+            }
+        })
     ]
 }

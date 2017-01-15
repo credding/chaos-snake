@@ -11,7 +11,6 @@ let centerX = width / 2;
 let centerY = height / 2;
 
 let data = {
-    render: '',
     stats: { total: 1, no: 1, up: 0, down: 0, left: 0, right: 0 }
 };
 
@@ -23,34 +22,21 @@ let renderData = {
 
 let currentKey = 'NO';
 
-let socket = io();
-
-socket.on('stats', payload => {
-    data.stats = payload;
-});
-socket.on('render', payload => {
-    renderData = payload;
-    render();
-});
-socket.on('session', id => {
-    localStorage.setItem('session', id);
-});
-
-let session = localStorage.getItem('session');
-socket.emit('session', session);
-
-let canvas = document.createElement('canvas');
-canvas.width = width;
-canvas.height = height;
-let ctx = canvas.getContext('2d');
+let canvas = null;
+let ctx = null;
+let socket = null;
 
 let AppComponent = Vue.component('snake-app', {
     template: require('./app.html'),
-    data: () => data
+    data: () => data,
+    mounted: () => {
+        canvas = document.getElementById('draw-surface');
+        canvas.width = width;
+        canvas.height = height;
+        ctx = canvas.getContext('2d');
+        openSocket();
+    }
 });
-
-document.addEventListener('keydown', keydown);
-document.addEventListener('keyup', keyup);
 
 function keydown(event) {
     let old = currentKey;
@@ -94,8 +80,30 @@ function keyup(event) {
     }
 }
 
+function openSocket() {
+    socket = io();
+
+    socket.on('stats', payload => {
+        data.stats = payload;
+    });
+    socket.on('render', payload => {
+        renderData = payload;
+        render();
+    });
+    socket.on('session', id => {
+        localStorage.setItem('session', id);
+    });
+
+    let session = localStorage.getItem('session');
+    socket.emit('session', session);
+
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('keyup', keyup);
+}
+
 function render() {
     window.requestAnimationFrame(() => {
+        ctx.save();
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = '#0f0';
         ctx.lineWidth = 0;
@@ -134,11 +142,7 @@ function render() {
                 ctx.fillText('Game Over', centerX, centerY + 10);
                 break;
         }
-        canvas.toBlob(blob => {
-            URL.revokeObjectURL(data.render);
-            let url = URL.createObjectURL(blob);
-            data.render = URL.createObjectURL(blob);
-        });
+        ctx.restore();
     });
 }
 
