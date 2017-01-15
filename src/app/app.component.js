@@ -43,15 +43,19 @@ function keydown(event) {
     switch (event.key) {
         case 'ArrowUp':
             currentKey = 'UP';
+            event.preventDefault();
             break;
         case 'ArrowDown':
             currentKey = 'DOWN';
+            event.preventDefault();
             break;
         case 'ArrowLeft':
             currentKey = 'LEFT';
+            event.preventDefault();
             break;
         case 'ArrowRight':
             currentKey = 'RIGHT';
+            event.preventDefault();
             break;
     }
     if (old != currentKey) {
