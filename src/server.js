@@ -38,9 +38,6 @@ io.on('connection', function(socket){
     let id = '';
     let user = null
 
-    sendStats();
-    socket.emit('render', render);
-
     socket.on('session', saveId => {
 
         if (saveId in users) {
@@ -55,6 +52,8 @@ io.on('connection', function(socket){
         }
 
         socket.emit('session', id);
+        socket.emit('render', render);
+        sendStats();
 
         socket.on('key', key => {
             user.key = key;

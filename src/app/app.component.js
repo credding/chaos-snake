@@ -12,13 +12,13 @@ let centerY = height / 2;
 
 let data = {
     render: '',
-    stats: { total: 0, no: 0, up: 0, down: 0, left: 0, right: 0 }
+    stats: { total: 1, no: 1, up: 0, down: 0, left: 0, right: 0 }
 };
 
 let renderData = {
     mode: '3',
     snake: [ [ 0, 0 ] ],
-    food: [ 10, 10 ]
+    food: [ 0, 0 ]
 };
 
 let currentKey = 'NO';
