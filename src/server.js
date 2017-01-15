@@ -24,7 +24,8 @@ let render = {
     food: [ 0, 0 ]
 };
 
-let users = [];
+let userCount = 0;
+let users = {};
 let velocity = [ 0, 0 ]
 
 app.use(Express.static('build'));
@@ -33,17 +34,20 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', function(socket){
+    let id = Math.random().toString(36).substr(2, 10)
     let user = { key: 'NO', current: 'NO' };
-    users.push(user);
+    userCount++;
+    users[id] = user;
     sendStats();
     socket.emit('render', render);
     socket.on('key', key => {
         user.key = key;
-        if (user.current == 'NO') user.current = key;
+        if (render.mode !== 'play' || key !== 'NO') user.current = key;
         sendStats();
     });
     socket.on('disconnect', () => {
-        users.splice(users.indexOf(user), 1);
+        userCount--;
+        delete users[id];
     });
 });
 
@@ -55,15 +59,15 @@ sendRender();
 
 function sendStats() {
     stats = {
-        total: users.length,
+        total: userCount,
         no: 0,
         up: 0,
         down: 0,
         left: 0,
         right: 0
     };
-    for (let i = 0; i < users.length; i++) {
-        switch (users[i].current) {
+    for (let id in users) {
+        switch (users[id].current) {
             case 'NO':
                 stats.no++;
                 break;
@@ -80,8 +84,7 @@ function sendStats() {
                 stats.right++;
                 break;
         }
-    };
-    calculateVelocity();
+    }
     io.emit('stats', stats);
 }
 
@@ -89,7 +92,7 @@ function sendRender() {
     let nextTimeout = 0;
     switch (render.mode) {
         case '3':
-            if (users.length > 0) {
+            if (userCount > 0) {
                 render.mode = '2';
                 nextTimeout = 1000;
             } else {
@@ -105,12 +108,15 @@ function sendRender() {
             nextTimeout = 1000;
             break;
         case 'play':
-            if (velocity[0] != velocity[1]) {
+            if (calculateVelocity()) {
                 if (!moveTail()) {
                     render.mode = 'end';
                     nextTimeout = 3000;
                     break;
                 }
+            }
+            for (let id in users) {
+                users[id].current = users[id].key;
             }
             nextTimeout = 150;
             break;
@@ -118,27 +124,24 @@ function sendRender() {
             velocity = [0, 0];
             render.mode = '3';
             render.snake = [[
-                Math.random() * GRID_WIDTH | 0,
-                Math.random() * GRID_HEIGHT | 0
+                Math.floor(Math.random() * (GRID_WIDTH - 2)) + 1,
+                Math.floor(Math.random() * (GRID_HEIGHT - 2)) + 1
             ]];
             generateFood();
             nextTimeout = 1000;
         }
     }
     io.emit('render', render);
-    for (let i = 0; i < users.length; i++) {
-        users[i].current = users[i].key;
-    }
     sendStats();
     setTimeout(sendRender, nextTimeout);
 }
 
 function calculateVelocity() {
-    let noX = velocity[0] == 0;
-    let noY = velocity[1] == 0;
-    let isFirst = render.snake.length == 1;
-    switch (Math.max(stats.no, stats.up, stats.down, stats.left, stats.right)) {
-        case stats.no:
+    let noX = velocity[0] === 0;
+    let noY = velocity[1] === 0;
+    let isFirst = render.snake.length === 1;
+    switch (Math.max(stats.up, stats.down, stats.left, stats.right)) {
+        case 0:
             if (noX && noY) return false;
             break;
         case stats.up:
@@ -169,12 +172,12 @@ function moveTail() {
     // Check collisions
     for (let i = 0; i < render.snake.length; i++) {
         let part = render.snake[i];
-        if (next[0] == part[0] && next[1] == part[1]) {
+        if (next[0] === part[0] && next[1] === part[1]) {
             return false;
         }
     }
     // Check food
-    if (next[0] == render.food[0] && next[1] == render.food[1]) {
+    if (next[0] === render.food[0] && next[1] === render.food[1]) {
         generateFood();
     } else {
         render.snake.shift();
@@ -185,18 +188,18 @@ function moveTail() {
 
 function generateFood() {
     let next = [
-        Math.random() * GRID_WIDTH | 0,
-        Math.random() * GRID_HEIGHT | 0
+        Math.floor(Math.random() * (GRID_WIDTH - 2)) + 1,
+        Math.floor(Math.random() * (GRID_HEIGHT - 2)) + 1
     ]
     // Check snake
     for (let i = 0; i < render.snake.length; i++) {
         let part = render.snake[i];
-        if (next[0] == part[0] && next[1] == part[1]) {
+        if (next[0] === part[0] && next[1] === part[1]) {
             return generateFood();
         }
     }
     // Check existing food
-    if (next[0] == render.food[0] && next[1] == render.food[1]) {
+    if (next[0] === render.food[0] && next[1] === render.food[1]) {
         return generateFood();
     }
     render.food = next;

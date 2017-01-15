@@ -40,12 +40,7 @@ let ctx = canvas.getContext('2d');
 
 let AppComponent = Vue.component('snake-app', {
     template: require('./app.html'),
-    data: () => data,
-    methods: {
-        rendered: () => {
-            //URL.revokeObjectURL(data.render);
-        }
-    }
+    data: () => data
 });
 
 document.addEventListener('keydown', keydown);
