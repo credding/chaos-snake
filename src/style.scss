@@ -1,0 +1,11 @@
+$fa-font-path: '~font-awesome/fonts';
+
+@import '~bootstrap/scss/variables';
+
+$body-bg: $gray-dark;
+$body-color: $gray-lighter;
+
+@import '~font-awesome/scss/font-awesome';
+@import '~bootstrap/scss/bootstrap';
+
+@import 'app/app';

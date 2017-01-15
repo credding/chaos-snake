@@ -1,0 +1,6 @@
+<div class="snake-vote-row v-center">
+    <div class="v-center snake-vote-fill" v-bind:style="{ width: count / total * 100 + '%' }">
+        <span class="snake-vote-count snake-vote-no-count">{{ count }}</span>
+    </div>
+    <i class="fa snake-vote-icon" v-bind:class="'fa-' + icon"></i>
+</div>

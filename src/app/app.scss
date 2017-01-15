@@ -1,0 +1,76 @@
+.snake-app-container {
+
+    max-width: 800px;
+
+    .snake-game-board {
+        padding: 0;
+        border: 3px solid $black;
+        background-color: darken($gray-dark, 10%);
+    }
+
+    .snake-draw-surface {
+        width: 100%;
+        display: block;
+    }
+}
+
+.snake-vote-group {
+    padding: 0;
+    border: 3px solid $black;
+
+    border-top-style: none;
+    border-left-style: none;
+
+    .snake-vote-row {
+        width: 100%;
+        height: 50px;
+        text-align: center;
+        border: 3px solid $black;
+        background-color: lighten($gray-dark, 15%);
+        position: relative;
+
+        border-top-style: none;
+        border-left-style: none;
+        border-right-style: none;
+        &:last-of-type {
+            border-bottom-style: none;
+        }
+
+        .snake-vote-fill {
+            width: 50%;
+            height: 100%;
+            text-align: left;
+            white-space: nowrap;
+            background-color: darken($brand-info, 25%);
+            position: absolute;
+            top: 0; left: 0;
+        }
+        .snake-vote-count {
+            margin-left: .5rem;
+        }
+        .snake-vote-icon {
+            position: relative;
+            z-index: 1;
+        }
+    }
+
+    @include media-breakpoint-down(xs) {
+        &:first-of-type, &:nth-of-type(even) {
+            border-left-style: solid;
+        }
+    }
+    @include media-breakpoint-up(sm) {
+        &:first-of-type {
+            border-top-style: solid;
+        }
+    }
+}
+
+.v-center {
+    &:before {
+        content: "";
+        height: 100%;
+        vertical-align: middle;
+        display: inline-block;
+    }
+}
