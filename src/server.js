@@ -24,7 +24,6 @@ let render = {
     food: [ 0, 0 ]
 };
 
-let userCount = 0;
 let users = {};
 let velocity = [ 0, 0 ]
 
@@ -45,7 +44,6 @@ io.on('connection', function(socket){
             user = users[saveId];
             user.connected = true;
         } else {
-            userCount++;
             id = Math.random().toString(36).substr(2, 10);
             user = { key: 'NO', current: 'NO', connected: true }
             users[id] = user;
@@ -65,7 +63,6 @@ io.on('connection', function(socket){
             user.connected = false;
             setTimeout(function() {
                 if (!user.connected) {
-                    userCount--;
                     delete users[id];
                 }
             }, 15000);
@@ -82,7 +79,7 @@ sendStats();
 
 function sendStats() {
     stats = {
-        total: userCount,
+        total: 0,
         no: 0,
         up: 0,
         down: 0,
@@ -90,6 +87,7 @@ function sendStats() {
         right: 0
     };
     for (let id in users) {
+        stats.total++;
         switch (users[id].current) {
             case 'NO':
                 stats.no++;
@@ -116,7 +114,7 @@ function sendRender() {
     let nextTimeout = 0;
     switch (render.mode) {
         case '3':
-            if (userCount > 0) {
+            if (stats.total > 0) {
                 render.mode = '2';
                 nextTimeout = 1000;
             } else {
